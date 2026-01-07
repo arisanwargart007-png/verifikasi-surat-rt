@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Verifikasi Surat RT</title>
+</head>
+<body>
+
+<h2>VERIFIKASI SURAT RESMI RT 007/06</h2>
+<div id="hasil">Memeriksa...</div>
+
+<script>
+const params = new URLSearchParams(window.location.search);
+const id = params.get("id");
+
+fetch("URL_API_APPS_SCRIPT_KAMU?id=" + id)
+  .then(res => res.json())
+  .then(data => {
+    if (data.status === "valid") {
+      document.getElementById("hasil").innerHTML = `
+        <p><b>Status:</b> VALID</p>
+        <p>Nomor Surat: ${data.nomor_surat}</p>
+        <p>Nama Warga: ${data.nama_warga}</p>
+        <p>Jenis Surat: ${data.jenis_surat}</p>
+        <p>Tanggal Sah: ${data.tanggal_sah}</p>
+        <p>Disahkan oleh:<br>${data.rt_nama}<br>Ketua RT 007/06</p>
+      `;
+    } else {
+      document.getElementById("hasil").innerHTML = "<b>SURAT TIDAK TERDAFTAR</b>";
+    }
+  });
+</script>
+
+</body>
+</html>
