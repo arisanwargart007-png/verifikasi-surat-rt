@@ -21,6 +21,18 @@
 </div>
 
 <script>
+  // ===== FUNGSI GLOBAL (HARUS DI LUAR IF) =====
+  function formatTanggal(tgl) {
+    const bulan = [
+      "Januari","Februari","Maret","April","Mei","Juni",
+      "Juli","Agustus","September","Oktober","November","Desember"
+    ];
+    const d = new Date(tgl);
+    if (isNaN(d)) return "-";
+    return d.getDate() + " " + bulan[d.getMonth()] + " " + d.getFullYear();
+  }
+
+  // ===== KONFIGURASI =====
   const apiUrl = "https://script.google.com/macros/s/AKfycbwORvm58LmIy4ng9iWcuWGPgCwwHdrDazVAn-SzYsJWODp6PiHS4g9cZWGhqgrogMcS0A/exec";
   const params = new URLSearchParams(window.location.search);
   const id = params.get("id");
@@ -28,20 +40,13 @@
   document.getElementById("debug").innerText =
     "DEBUG:\nID = " + id + "\nAPI = " + apiUrl;
 
+  // ===== LOGIKA UTAMA =====
   if (!id) {
     document.getElementById("hasil").innerHTML =
       "<p class='invalid'>ID surat tidak ditemukan di URL.</p>";
-    function formatTanggal(tgl) {
-  const bulan = [
-    "Januari","Februari","Maret","April","Mei","Juni",
-    "Juli","Agustus","September","Oktober","November","Desember"
-  ];
-  const d = new Date(tgl);
-  return d.getDate() + " " + bulan[d.getMonth()] + " " + d.getFullYear();
-}
   } else {
     fetch(apiUrl + "?id=" + encodeURIComponent(id))
-      .then(response => response.json())
+      .then(res => res.json())
       .then(data => {
         if (data.status === "valid") {
           document.getElementById("hasil").innerHTML = `
@@ -50,9 +55,11 @@
             <p><b>Nama Warga:</b> ${data.nama_warga}</p>
             <p><b>Jenis Surat:</b> ${data.jenis_surat}</p>
             <p><b>Tanggal Sah:</b> ${formatTanggal(data.tanggal_sah)}</p>
-            <p><b>Dibuat oleh:</b><br>${data.pelaksana_arisan}<br>Pelaksana arisan RT 007/06</p>
-            <p><b>Diketahui oleh:</b><br>Pengelola Dana Sehat RT 007/06</p>
-            <p><b>Disahkan oleh:</b><br>Ketua RT 007/06</p>
+            <hr>
+            <p><b>Disahkan oleh:</b><br>
+               ${data.rt_nama}<br>
+               Ketua RT 007/06
+            </p>
           `;
         } else {
           document.getElementById("hasil").innerHTML =
@@ -62,8 +69,7 @@
       .catch(err => {
         document.getElementById("hasil").innerHTML =
           "<p class='invalid'>GAGAL MENGHUBUNGI SERVER</p>";
-        document.getElementById("debug").innerText +=
-          "\nERROR: " + err;
+        document.getElementById("debug").innerText += "\nERROR: " + err;
       });
   }
 </script>
