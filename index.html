@@ -31,6 +31,14 @@
   if (!id) {
     document.getElementById("hasil").innerHTML =
       "<p class='invalid'>ID surat tidak ditemukan di URL.</p>";
+    function formatTanggal(tgl) {
+  const bulan = [
+    "Januari","Februari","Maret","April","Mei","Juni",
+    "Juli","Agustus","September","Oktober","November","Desember"
+  ];
+  const d = new Date(tgl);
+  return d.getDate() + " " + bulan[d.getMonth()] + " " + d.getFullYear();
+}
   } else {
     fetch(apiUrl + "?id=" + encodeURIComponent(id))
       .then(response => response.json())
@@ -41,7 +49,7 @@
             <p><b>Nomor Surat:</b> ${data.nomor_surat}</p>
             <p><b>Nama Warga:</b> ${data.nama_warga}</p>
             <p><b>Jenis Surat:</b> ${data.jenis_surat}</p>
-            <p><b>Tanggal Sah:</b> ${data.tanggal_sah}</p>
+            <p><b>Tanggal Sah:</b> ${formatTanggal(data.tanggal_sah)}</p>
             <p><b>Dibuat oleh:</b><br>${data.pelaksana_arisan}<br>Pelaksana arisan RT 007/06</p>
             <p><b>Diketahui oleh:</b><br>Pengelola Dana Sehat RT 007/06</p>
             <p><b>Disahkan oleh:</b><br>Ketua RT 007/06</p>
