@@ -1,33 +1,61 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
-  <title>Verifikasi Surat RT</title>
+  <meta charset="UTF-8">
+  <title>Verifikasi Surat RT 007/06</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { font-family: Arial, sans-serif; background:#f5f5f5; padding:20px; }
+    .card { background:#fff; max-width:500px; margin:auto; padding:20px; border-radius:6px; }
+    .valid { color:green; font-weight:bold; }
+    .invalid { color:red; font-weight:bold; }
+    .debug { color:#555; font-size:12px; margin-top:10px; }
+  </style>
 </head>
 <body>
 
-<h2>VERIFIKASI SURAT RESMI RT 007/06</h2>
-<div id="hasil">Memeriksa...</div>
+<div class="card">
+  <h3>VERIFIKASI SURAT RESMI RT 007/06</h3>
+  <div id="hasil">Memeriksa...</div>
+  <div id="debug" class="debug"></div>
+</div>
 
 <script>
-const params = new URLSearchParams(window.location.search);
-const id = params.get("id");
+  const apiUrl = "https://script.google.com/macros/s/AKfycbwORvm58LmIy4ng9iWcuWGPgCwwHdrDazVAn-SzYsJWODp6PiHS4g9cZWGhqgrogMcS0A/exec";
+  const params = new URLSearchParams(window.location.search);
+  const id = params.get("id");
 
-fetch("URL_API_APPS_SCRIPT_KAMU?id=" + id)
-  .then(res => res.json())
-  .then(data => {
-    if (data.status === "valid") {
-      document.getElementById("hasil").innerHTML = `
-        <p><b>Status:</b> VALID</p>
-        <p>Nomor Surat: ${data.nomor_surat}</p>
-        <p>Nama Warga: ${data.nama_warga}</p>
-        <p>Jenis Surat: ${data.jenis_surat}</p>
-        <p>Tanggal Sah: ${data.tanggal_sah}</p>
-        <p>Disahkan oleh:<br>${data.rt_nama}<br>Ketua RT 007/06</p>
-      `;
-    } else {
-      document.getElementById("hasil").innerHTML = "<b>SURAT TIDAK TERDAFTAR</b>";
-    }
-  });
+  document.getElementById("debug").innerText =
+    "DEBUG:\nID = " + id + "\nAPI = " + apiUrl;
+
+  if (!id) {
+    document.getElementById("hasil").innerHTML =
+      "<p class='invalid'>ID surat tidak ditemukan di URL.</p>";
+  } else {
+    fetch(apiUrl + "?id=" + encodeURIComponent(id))
+      .then(response => response.json())
+      .then(data => {
+        if (data.status === "valid") {
+          document.getElementById("hasil").innerHTML = `
+            <p class="valid">STATUS: SURAT ASLI & SAH</p>
+            <p><b>Nomor Surat:</b> ${data.nomor_surat}</p>
+            <p><b>Nama Warga:</b> ${data.nama_warga}</p>
+            <p><b>Jenis Surat:</b> ${data.jenis_surat}</p>
+            <p><b>Tanggal Sah:</b> ${data.tanggal_sah}</p>
+            <p><b>Disahkan oleh:</b><br>${data.rt_nama}<br>Ketua RT 007/06</p>
+          `;
+        } else {
+          document.getElementById("hasil").innerHTML =
+            "<p class='invalid'>SURAT TIDAK TERDAFTAR / TIDAK SAH</p>";
+        }
+      })
+      .catch(err => {
+        document.getElementById("hasil").innerHTML =
+          "<p class='invalid'>GAGAL MENGHUBUNGI SERVER</p>";
+        document.getElementById("debug").innerText +=
+          "\nERROR: " + err;
+      });
+  }
 </script>
 
 </body>
