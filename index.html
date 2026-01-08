@@ -2,73 +2,120 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>Verifikasi Surat RT 007/06</title>
+  <title>Verifikasi Surat Resmi RT 007/06</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+
   <style>
-    body { font-family: Arial, sans-serif; background:#f5f5f5; padding:20px; }
-    .card { background:#fff; max-width:500px; margin:auto; padding:20px; border-radius:6px; }
-    .valid { color:green; font-weight:bold; }
-    .invalid { color:red; font-weight:bold; }
-    .debug { color:#555; font-size:12px; margin-top:10px; }
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f2f2;
+      padding: 20px;
+    }
+    .card {
+      background: #ffffff;
+      max-width: 520px;
+      margin: auto;
+      padding: 22px;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    h3 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .valid {
+      color: #1a7f37;
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 16px;
+    }
+    .invalid {
+      color: #b3261e;
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 16px;
+    }
+    p {
+      margin: 6px 0;
+    }
+    hr {
+      margin: 16px 0;
+    }
+    .footer {
+      font-size: 12px;
+      color: #666;
+      text-align: center;
+      margin-top: 20px;
+    }
   </style>
 </head>
 <body>
 
 <div class="card">
-  <h3>VERIFIKASI SURAT RESMI RT 007/06</h3>
-  <div id="hasil">Memeriksa...</div>
-  <div id="debug" class="debug"></div>
+  <h3>VERIFIKASI SURAT RESMI<br>RT 007/06</h3>
+  <div id="hasil">Memeriksa keabsahan surat...</div>
 </div>
 
 <script>
-  // ===== FUNGSI GLOBAL (HARUS DI LUAR IF) =====
+  const apiUrl = "https://script.google.com/macros/s/AKfycbwORvm58LmIy4ng9iWcuWGPgCwwHdrDazVAn-SzYsJWODp6PiHS4g9cZWGhqgrogMcS0A/exec";
+  const params = new URLSearchParams(window.location.search);
+  const id = params.get("id");
+
   function formatTanggal(tgl) {
     const bulan = [
       "Januari","Februari","Maret","April","Mei","Juni",
       "Juli","Agustus","September","Oktober","November","Desember"
     ];
     const d = new Date(tgl);
-    if (isNaN(d)) return "-";
     return d.getDate() + " " + bulan[d.getMonth()] + " " + d.getFullYear();
   }
 
-  // ===== KONFIGURASI =====
-  const apiUrl = "https://script.google.com/macros/s/AKfycbypDrTxrH2cAe7VckQSXnOT4zS9en7gZWddztHG9sB16OuRvFcumeSiMg003KicnusDZA/exec";
-  const params = new URLSearchParams(window.location.search);
-  const id = params.get("id");
-
-  document.getElementById("debug").innerText =
-    "DEBUG:\nID = " + id + "\nAPI = " + apiUrl;
-
-  // ===== LOGIKA UTAMA =====
   if (!id) {
-    document.getElementById("hasil").innerHTML =
-      "<p class='invalid'>ID surat tidak ditemukan di URL.</p>";
+    document.getElementById("hasil").innerHTML = `
+      <p class="invalid">ID surat tidak ditemukan.</p>
+      <div class="footer">
+        Silakan periksa kembali QR Code atau tautan yang digunakan.
+      </div>
+    `;
   } else {
     fetch(apiUrl + "?id=" + encodeURIComponent(id))
       .then(res => res.json())
       .then(data => {
         if (data.status === "valid") {
           document.getElementById("hasil").innerHTML = `
-            <p class="valid">STATUS: SURAT ASLI & SAH</p>
-            <p><b>Nomor Surat:</b> ${data.nomor_surat}</p>
-            <p><b>Warga:</b> ${data.warga}</p>
-            <p><b>Jenis Surat:</b> ${data.jenis_surat}</p>
-            <p><b>Tanggal Sah:</b> ${formatTanggal(data.tanggal_sah)}</p>
+            <p class="valid">SURAT ASLI & SAH</p>
+
+            <p><b>Nomor Surat:</b><br>${data.nomor_surat}</p>
+            <p><b>Nama Warga:</b><br>${data.warga}</p>
+            <p><b>Jenis Surat:</b><br>${data.jenis_surat}</p>
+            <p><b>Tanggal Pengesahan:</b><br>${formatTanggal(data.tanggal_sah)}</p>
+
             <hr>
-            <p><b>Dibuat oleh:</b><br>${data.pelaksana_arisan}<br>Pelaksana Arisan RT 007/06</p>
-            <p><b>Diketahui oleh:</b><br>Pengelola Dana Sehat RT 007/06</p>
+
+            <p><b>Dibuat oleh:</b><br>${data.pelaksana_arisan}<br>Pelaksana Kegiatan RT 007/06</p>
+
             <p><b>Disahkan oleh:</b><br>Ketua RT 007/06</p>
+
+            <div class="footer">
+              Surat ini telah diverifikasi melalui sistem digital RT 007/06.
+            </div>
           `;
         } else {
-          document.getElementById("hasil").innerHTML =
-            "<p class='invalid'>SURAT TIDAK TERDAFTAR / TIDAK SAH</p>";
+          document.getElementById("hasil").innerHTML = `
+            <p class="invalid">SURAT TIDAK TERDAFTAR ATAU TIDAK SAH</p>
+            <div class="footer">
+              Jika terdapat perbedaan data, silakan konfirmasi ke pengurus RT.
+            </div>
+          `;
         }
       })
-      .catch(err => {
-        document.getElementById("hasil").innerHTML =
-          "<p class='invalid'>GAGAL MENGHUBUNGI SERVER</p>";
-        document.getElementById("debug").innerText += "\nERROR: " + err;
+      .catch(() => {
+        document.getElementById("hasil").innerHTML = `
+          <p class="invalid">VERIFIKASI TIDAK DAPAT DILAKUKAN</p>
+          <div class="footer">
+            Sistem sedang tidak dapat diakses. Silakan coba kembali.
+          </div>
+        `;
       });
   }
 </script>
