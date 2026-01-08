@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Verifikasi Rekapan Arisan</title>
+</head>
+<body>
+
+<h3>VERIFIKASI REKAPAN ARISAN</h3>
+<div id="hasil">Memeriksa...</div>
+<div id="pdf"></div>
+
+<script>
+const api = "https://script.google.com/macros/s/AKfycbyrxlojXtA1WpKTnCt2JTwy4o2uXuHghO8bGdzOq_9JiPF62sa88alE97AwXwwwtjvFTg/exec";
+const id = new URLSearchParams(location.search).get("id");
+
+fetch(api + "?id=" + id)
+.then(r => r.json())
+.then(d => {
+  if (d.status === "valid") {
+    document.getElementById("hasil").innerHTML = `
+      <b>REKAPAN SAH</b><br>
+      Periode: ${d.periode}<br>
+      Kelompok: ${d.kelompok}<br>
+      Total: ${d.total}<br>
+      Tanggal Sah: ${d.tanggal}
+    `;
+
+    document.getElementById("pdf").innerHTML = `
+      <iframe
+        src="https://drive.google.com/file/d/${d.fileId}/preview"
+        width="100%" height="600">
+      </iframe>
+    `;
+  } else {
+    document.getElementById("hasil").innerText = "DATA TIDAK SAH";
+  }
+});
+</script>
+
+</body>
+</html>
